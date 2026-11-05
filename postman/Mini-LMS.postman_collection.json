@@ -1,0 +1,86 @@
+{
+  "info": {
+    "_postman_id": "46adea03-86d7-4d10-a5ae-4f270c02242d",
+    "name": "Mini-LMS Kelompok 6",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59427948",
+    "_collection_link": "https://go.postman.co/collection/59427948-46adea03-86d7-4d10-a5ae-4f270c02242d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Health Assignment",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment tanpa token (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments?course_id=course-001",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ],
+          "query": [
+            {
+              "key": "course_id",
+              "value": "course-001"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment, Authentication mati (503)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments?course_id=course-001",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ],
+          "query": [
+            {
+              "key": "course_id",
+              "value": "course-001"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

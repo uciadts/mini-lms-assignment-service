@@ -1,0 +1,9 @@
+[
+    {
+        "id": "asg-001",
+        "course_id": "course-001",
+        "title": "Integrasi Mini LMS",
+        "description": "Bangun satu service dan hubungkan lewat Gateway",
+        "due_date": "2026-11-13"
+    }
+]
