@@ -191,12 +191,12 @@ Modul hanya mewajibkan tiga operasi, tetapi Submission Service perlu memastikan 
 ## Dependensi ke service lain
 
 - **Course Service** (Kelompok 3, port 8103): memastikan `course_id` ada sebelum membuat atau menampilkan assignment. Pemeriksaan memakai endpoint wajib `GET /api/courses`, lalu mencari `course_id` di daftar yang dikembalikan. Alamatnya dibaca dari `services.json`, tidak ditulis berulang di kode. Panggilan memakai batas waktu (*timeout*) beberapa detik. Jika Course tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504.
-- **Authentication Service** (Kelompok 1, port 8102): memastikan token valid. Cara pemeriksaannya mengikuti kontrak kelompok Authentication.
+- **Authentication Service** (Kelompok 1, port 8102): memastikan token valid dengan memanggil `POST /api/auth/validate` yang membawa header `Authorization: Bearer <token>`. Respons `200` berisi `data.valid: true` dan `data.user`. Respons `401` berarti token ditolak, dan Assignment meneruskannya sebagai `401 unauthorized`. Jika Authentication tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504.
 
 ## Hal yang masih harus disepakati
 
 1. **Course:** Assignment memakai `GET /api/courses` (endpoint wajib di modul). Yang perlu dikonfirmasi hanya bentuk responsnya, yaitu nama field daftar course dan nama field id (misalnya `data.courses[].id`), supaya pencarian `course_id` benar.
-2. **Authentication:** nama field token pada respons login dan cara memeriksa token (`GET /api/auth/me` atau `POST /api/auth/validate`).
+2. **Authentication:** SUDAH JELAS dari kontrak Kelompok 1. Token diperiksa lewat `POST /api/auth/validate`, dan token diterbitkan pada `data.token` saat login.
 3. **Submission:** apakah endpoint tambahan `GET /api/assignments/{id}` disetujui?
 4. **Gateway:** nama service pada rute `/api/{service}/{path}` untuk Assignment, dan alamat `assignment` pada `services.json`.
 5. **Semua kelompok:** kode error yang dipakai. Modul hanya memberi contoh `assignment_not_found` dan `not_found`, sisanya pada draf ini adalah usulan.
