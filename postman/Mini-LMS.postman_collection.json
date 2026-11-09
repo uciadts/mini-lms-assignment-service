@@ -9,6 +9,17 @@
   "item": [
     {
       "name": "Health Assignment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Health 200\", function () {\r\n  pm.response.to.have.status(200);\r\n});\r\npm.test(\"Status healthy\", function () {\r\n  pm.expect(pm.response.json().data.status).to.eql(\"healthy\");\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -19,188 +30,6 @@
           ],
           "path": [
             "health"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Daftar assignment tanpa token (401)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments?course_id=course-001",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ],
-          "query": [
-            {
-              "key": "course_id",
-              "value": "course-001"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Daftar assignment berhasil (200)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments?course_id=course-001",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ],
-          "query": [
-            {
-              "key": "course_id",
-              "value": "course-001"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Buat assignment berhasil (201)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments?course_id=course-001",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ],
-          "query": [
-            {
-              "key": "course_id",
-              "value": "course-001"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Hapus assignment berhasil (200)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments?course_id=course-001",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ],
-          "query": [
-            {
-              "key": "course_id",
-              "value": "course-001"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Hapus assignment tidak ditemukan (404)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments?course_id=course-001",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ],
-          "query": [
-            {
-              "key": "course_id",
-              "value": "course-001"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Daftar assignment tanpa course_id (400)",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{token}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Daftar assignment, Authentication mati (503)",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "abc123",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/assignments?course_id=course-001",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "assignments"
-          ],
-          "query": [
-            {
-              "key": "course_id",
-              "value": "course-001"
-            }
           ]
         }
       },
@@ -245,6 +74,276 @@
             "api",
             "auth",
             "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment tanpa token (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments?course_id=course-001",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ],
+          "query": [
+            {
+              "key": "course_id",
+              "value": "course-001"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment berhasil (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Daftar berhasil (200)\", function () {\r\n  pm.response.to.have.status(200);\r\n});\r\npm.test(\"Berisi daftar assignments\", function () {\r\n  const json = pm.response.json();\r\n  pm.expect(json.success).to.eql(true);\r\n  pm.expect(json.data.assignments).to.be.an(\"array\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments?course_id=course-001",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ],
+          "query": [
+            {
+              "key": "course_id",
+              "value": "course-001"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment tanpa course_id (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Tanpa course_id ditolak (400)\", function () {\r\n  pm.response.to.have.status(400);\r\n});\r\npm.test(\"Format error sesuai kontrak\", function () {\r\n  const json = pm.response.json();\r\n  pm.expect(json.success).to.eql(false);\r\n  pm.expect(json.error.code).to.eql(\"validation_error\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buat assignment berhasil (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Assignment dibuat (201)\", function () {\r\n  pm.response.to.have.status(201);\r\n});\r\npm.test(\"Berisi id baru\", function () {\r\n  pm.expect(pm.response.json().data).to.have.property(\"id\");\r\n});\r\nconst json = pm.response.json();\r\nif (json.data && json.data.id) {\r\n  pm.environment.set(\"assignment_id\", json.data.id);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"course_id\": \"course-001\",\r\n  \"title\": \"Tugas Praktikum 1\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/assignments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Hapus assignment berhasil (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Hapus berhasil (200)\", function () {\r\n  pm.response.to.have.status(200);\r\n});\r\npm.test(\"Ditandai terhapus\", function () {\r\n  pm.expect(pm.response.json().data.deleted).to.eql(true);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments/{{assignment_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments",
+            "{{assignment_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Hapus assignment tidak ditemukan (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Tidak ditemukan (404)\", function () {\r\n  pm.response.to.have.status(404);\r\n});\r\npm.test(\"Kode error assignment_not_found\", function () {\r\n  const json = pm.response.json();\r\n  pm.expect(json.success).to.eql(false);\r\n  pm.expect(json.error.code).to.eql(\"assignment_not_found\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments/{{assignment_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments",
+            "{{assignment_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment, Authentication mati (503)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments?course_id=course-001",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ],
+          "query": [
+            {
+              "key": "course_id",
+              "value": "course-001"
+            }
           ]
         }
       },
