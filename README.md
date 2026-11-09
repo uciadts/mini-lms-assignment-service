@@ -63,7 +63,7 @@ Koleksi Postman ada di folder `postman/`. Ringkasan dan bukti pengujian ada di `
 ## Keterbatasan implementasi yang diketahui
 
 - Pemeriksaan `course_id` ke Course Service belum diimplementasikan. Saat ini `course_id` diterima tanpa diperiksa keberadaannya.
-- Jalur token asli (token valid) belum diuji terhadap service Authentication yang berjalan. Yang sudah diuji: tanpa token (401) dan Authentication tidak terjangkau (503).
+- Token asli sudah diuji terhadap service Authentication Kelompok 1 yang berjalan di laptop yang sama. Integrasi melalui API Gateway dan antar laptop belum diuji.
 - Peran pengguna (`mahasiswa` atau `dosen`) belum dibedakan. Token yang sah dianggap boleh.
 - Data disimpan di berkas JSON, belum memakai basis data, dan belum aman untuk akses bersamaan oleh banyak request.
 - Belum ada pengujian otomatis. Pengujian dilakukan lewat Postman.
