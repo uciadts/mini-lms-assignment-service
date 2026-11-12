@@ -11,8 +11,6 @@ Service untuk mengelola tugas (assignment) pada proyek Mini LMS Terdistribusi, m
 | MUHAMMAD FAUZAN | 240209502034 | Penanggung jawab dokumentasi pengujian (TESTING.md dan bukti). Peran demo: Penguji |
 | ANDI NURRIZQAH HAMDANA | 240209501084 | Penanggung jawab diagram alur. Peran demo: Penjelas alur |
 
-Tambahkan atau hapus baris sesuai jumlah anggota.
-
 ## Informasi service
 
 | Item | Nilai |
@@ -48,11 +46,12 @@ Rincian request, response, dan status HTTP ada di [API_CONTRACT.md](API_CONTRACT
 | GET | `/api/assignments?course_id=...` | wajib |
 | POST | `/api/assignments` | wajib |
 | DELETE | `/api/assignments/{id}` | wajib |
+| GET | `/api/assignments/{id}` (endpoint tambahan, dipakai Submission Service) | wajib |
 
 ## Hubungan dengan service lain
 
 - **Authentication Service** (Kelompok 1, port 8102): token diperiksa lewat `POST /api/auth/validate`.
-- **Course Service** (Kelompok 3, port 8103): dipakai untuk memastikan `course_id` ada (lihat keterbatasan di bawah).
+- **Course Service** (Kelompok 3, port 8103): memastikan `course_id` ada lewat `GET /api/courses/{id}` sebelum tugas dibuat atau ditampilkan.
 - **Monitoring Service** (Kelompok 7, port 8107): memanggil `GET /health` ke service ini.
 - **Submission Service** (Kelompok 4, port 8105): memeriksa `assignment_id` ke service ini.
 
@@ -62,8 +61,8 @@ Koleksi Postman ada di folder `postman/`. Ringkasan dan bukti pengujian ada di `
 
 ## Keterbatasan implementasi yang diketahui
 
-- Pemeriksaan `course_id` ke Course Service belum diimplementasikan. Saat ini `course_id` diterima tanpa diperiksa keberadaannya.
-- Jalur token asli (token valid) belum diuji terhadap service Authentication yang berjalan. Yang sudah diuji: tanpa token (401) dan Authentication tidak terjangkau (503).
+- Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
+- Integrasi melalui API Gateway dan antar laptop belum diuji.
 - Peran pengguna (`mahasiswa` atau `dosen`) belum dibedakan. Token yang sah dianggap boleh.
 - Data disimpan di berkas JSON, belum memakai basis data, dan belum aman untuk akses bersamaan oleh banyak request.
 - Belum ada pengujian otomatis. Pengujian dilakukan lewat Postman.
