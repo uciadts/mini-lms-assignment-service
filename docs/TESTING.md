@@ -58,9 +58,11 @@ Tujuannya membuktikan Assignment dapat diakses lewat Gateway (port 8101), sesuai
 
 **Temuan awal.** Dengan Gateway Kelompok 5 versi GitHub (commit 9 November 2026), `GET /api/assignments?course_id=course-001` dengan token dijawab 404 dengan kode `service_not_found` ("Service 'assignments' tidak terdaftar"). Penyebabnya ada dua: Gateway mencari nama `assignments` di `services.json` padahal kuncinya `assignment`, dan alamat tujuan disusun ulang menjadi `/api/assignment/...` padahal endpoint Assignment adalah `/api/assignments`. Bukti: `12-gateway-asli-404.png`.
 
-**Penanganan.** Dua perubahan kecil pada `index.php` Gateway: (1) tabel alias yang menerjemahkan `assignments` menjadi `assignment` (juga `courses`, `submissions`, `notifications`), dan (2) path asli dari client diteruskan apa adanya ke service tujuan. Perubahan ini disampaikan kepada Kelompok 5. Pengujian di bawah memakai salinan Gateway yang sudah memuat perubahan tersebut.
+**Penanganan.** Dua perubahan kecil pada `index.php` Gateway: (1) tabel alias yang menerjemahkan `assignments` menjadi `assignment` (juga `courses`, `submissions`, `notifications`), dan (2) path asli dari client diteruskan apa adanya ke service tujuan. Perubahan ini disampaikan kepada Kelompok 5. Kelompok 5 kemudian menerapkan perubahan yang setara pada repositori mereka (12 November 2026, commit `299d6fd`).
 
-**Hasil.** Dijalankan pada 12 November 2026 pukul 12.53 dengan environment Postman `Gateway` (`base_url` = `http://127.0.0.1:8101`), dengan Authentication, Course, Assignment, dan Gateway berjalan bersamaan. Hasil: 21 tes, 21 lulus, 0 gagal, 0 error. Bukti: `11-collection-runner-lewat-gateway.png`.
+**Hasil.** Pengujian pertama dijalankan pada 12 November 2026 pukul 12.53 dengan salinan Gateway yang sudah ditambal, environment Postman `Gateway` (`base_url` = `http://127.0.0.1:8101`), dengan Authentication, Course, Assignment, dan Gateway berjalan bersamaan. Hasil: 21 tes, 21 lulus, 0 gagal, 0 error. Bukti: `11-collection-runner-lewat-gateway.png`.
+
+Pengujian diulang pada 12 November 2026 dengan Gateway resmi Kelompok 5 (commit `299d6fd`, diunduh dari GitHub tanpa perubahan lokal), dengan environment, koleksi, dan service lain yang sama. Hasil: 21 tes, 21 lulus, 0 gagal. Bukti: `15-collection-runner-gateway-resmi.png`.
 
 Catatan:
 
@@ -69,7 +71,7 @@ Catatan:
 
 ## Uji kegagalan lewat Gateway: service Assignment tidak berjalan
 
-Tujuannya membuktikan Gateway tetap menjawab dengan rapi saat Assignment mati, dan semuanya pulih saat Assignment dihidupkan kembali (Bagian 10.3 modul). Pengujian memakai salinan Gateway yang sudah ditambal dan environment Postman `Gateway`, dengan Authentication, Course, dan Gateway tetap berjalan.
+Tujuannya membuktikan Gateway tetap menjawab dengan rapi saat Assignment mati, dan semuanya pulih saat Assignment dihidupkan kembali (Bagian 10.3 modul). Pengujian ini dilakukan sebelum Gateway resmi diperbarui, memakai salinan Gateway yang sudah ditambal (perubahannya sama dengan versi resmi Kelompok 5 commit `299d6fd`) dan environment Postman `Gateway`, dengan Authentication, Course, dan Gateway tetap berjalan.
 
 | No | Langkah | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
 | --- | --- | --- | --- | --- |
