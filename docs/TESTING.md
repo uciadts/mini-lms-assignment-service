@@ -1,9 +1,9 @@
 # Rangkuman Pengujian: Assignment Service (Kelompok 6)
 
-- Tanggal pengujian: 9 November 2026
+- Tanggal pengujian: 9 dan 12 November 2026
 - Penyusun: UCI ADITYANTIKASARI
 - Alat uji: Postman. Koleksi ada di `postman/Mini-LMS.postman_collection.json`
-- Lingkungan: Assignment Service (PHP 8.2.12, port 8104) dan Authentication Service Kelompok 1 (port 8102), keduanya pada laptop yang sama. Environment Postman: `Lokal`.
+- Lingkungan: Assignment Service (PHP 8.2.12, port 8104), Authentication Service Kelompok 1 (port 8102), dan Course Service Kelompok 3 (port 8103), semuanya pada laptop yang sama. Environment Postman: `Lokal`.
 
 ## Cakupan
 
@@ -26,6 +26,8 @@ Pengujian mencakup kasus sukses, input salah (400), sumber daya tidak ditemukan 
 
 Dijalankan pada 9 November 2026 pukul 21.02 dengan environment `Lokal`, 1 iterasi. Hasil: 15 tes, 15 lulus, 0 gagal, 0 error, durasi sekitar 2 detik.
 
+Catatan: Runner ini dijalankan sebelum pemeriksaan `course_id` ke Course Service dipasang di kode, sehingga hasilnya belum mencakup pemeriksaan tersebut.
+
 ## Uji kegagalan: service Authentication tidak berjalan
 
 Tujuannya membuktikan Assignment Service tetap menjawab dengan rapi saat service yang dipanggilnya mati, dan pulih sendiri saat service itu hidup kembali (Bagian 10.3 modul).
@@ -37,9 +39,21 @@ Tujuannya membuktikan Assignment Service tetap menjawab dengan rapi saat service
 | 11 | Authentication dihidupkan kembali, cek `GET :8102/health` (pukul 20.26) | 200 | 200, `status` = `healthy` | `03-auth-hidup-kembali-200.png` |
 | 12 | Daftar tugas dengan token setelah Authentication hidup (pukul 20.28) | 200 | 200, berisi tugas `asg-001` | `04-daftar-assignment-200-pulih.png` |
 
+## Pemeriksaan course_id ke Course Service
+
+Assignment memeriksa `course_id` lewat `GET /api/courses/{id}` di Course Service Kelompok 3 sebelum membuat atau menampilkan tugas. Course Service dijalankan pada laptop yang sama dengan course `course-001`.
+
+| No | Langkah | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
+| --- | --- | --- | --- | --- |
+| 13 | Daftar tugas dengan `course_id=course-001` (course ada) | 200 | 200, sesuai harapan | `06-course-ada-200.png` |
+| 14 | Daftar tugas dengan `course_id=course-999` (course tidak ada) | 404, kode `course_not_found` | 404, sesuai harapan | `07-course-tidak-ada-404.png` |
+| 15 | Course Service dimatikan, lalu daftar tugas dengan `course_id=course-001` | 503, kode `service_unavailable` | 503, sesuai harapan | `08-course-mati-503.png` |
+| 16 | Course Service dihidupkan kembali, lalu daftar tugas dengan `course_id=course-001` | 200 | 200, sesuai harapan | `09-course-pulih-200.png` |
+
 ## Belum diuji
 
-- Pemeriksaan `course_id` ke Course Service belum diimplementasikan, sehingga belum ada pengujiannya.
-- Kasus Authentication melewati batas waktu (504) belum diuji.
+- Pemeriksaan `course_id` pada pembuatan tugas (POST) belum tercatat pengujiannya di dokumen ini.
+- Endpoint tambahan `GET /api/assignments/{id}` belum tercatat pengujiannya di dokumen ini.
+- Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
 - Integrasi melalui API Gateway dan antar laptop belum diuji.
 - Pembedaan peran `mahasiswa` dan `dosen` belum diimplementasikan.

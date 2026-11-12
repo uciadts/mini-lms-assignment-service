@@ -1,7 +1,9 @@
 <?php
 // index.php : Assignment Service (Kelompok 6), port 8104
-// Tahap 2D: /health, GET dan POST /api/assignments, DELETE /api/assignments/{id}
+// Tahap 2E: /health, GET dan POST /api/assignments, DELETE /api/assignments/{id}
 // Tiga endpoint /api/assignments wajib membawa token (diperiksa ke Authentication Service)
+// GET dan POST memastikan course_id ada di Course Service (GET /api/courses/{id})
+// Endpoint tambahan: GET /api/assignments/{id}
 
 header('Content-Type: application/json');
 
@@ -82,8 +84,8 @@ function callService($url, $method, $headers, $timeout = 3) {
     return ['status' => $status, 'timeout' => false, 'body' => json_decode($resp, true)];
 }
 
-// Memeriksa token lewat Authentication Service: POST /api/auth/validate
-function requireAuth($rid) {
+// Membaca header Authorization dari request yang masuk
+function getAuthHeader() {
     $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     if ($auth === '' && function_exists('getallheaders')) {
         foreach (getallheaders() as $k => $v) {
@@ -92,6 +94,12 @@ function requireAuth($rid) {
             }
         }
     }
+    return $auth;
+}
+
+// Memeriksa token lewat Authentication Service: POST /api/auth/validate
+function requireAuth($rid) {
+    $auth = getAuthHeader();
     if (stripos($auth, 'Bearer ') !== 0 || trim(substr($auth, 7)) === '') {
         fail(401, 'unauthorized', 'Token tidak ada atau tidak valid', $rid);
     }
@@ -123,6 +131,37 @@ function requireAuth($rid) {
     fail(503, 'service_unavailable', 'Respons Authentication Service tidak sesuai kontrak', $rid);
 }
 
+// Memastikan course_id ada di Course Service: GET /api/courses/{id}
+// (endpoint ini disediakan Kelompok 3, lihat API_CONTRACT Course)
+function requireCourse($courseId, $rid) {
+    $services = loadServices();
+    if (empty($services['course'])) {
+        fail(503, 'service_unavailable', 'Alamat Course Service belum diatur di services.json', $rid);
+    }
+
+    $res = callService($services['course'] . '/api/courses/' . rawurlencode($courseId), 'GET', [
+        'Authorization: ' . getAuthHeader(),
+        'X-Request-ID: ' . $rid,
+    ]);
+
+    if ($res['status'] === 0) {
+        if ($res['timeout']) {
+            fail(504, 'gateway_timeout', 'Course Service melewati batas waktu', $rid);
+        }
+        fail(503, 'service_unavailable', 'Course Service tidak dapat dihubungi', $rid);
+    }
+    if ($res['status'] === 200) {
+        return;
+    }
+    if ($res['status'] === 404 && ($res['body']['error']['code'] ?? '') === 'course_not_found') {
+        fail(404, 'course_not_found', 'Course tidak ditemukan', $rid);
+    }
+    if ($res['status'] === 504) {
+        fail(504, 'gateway_timeout', 'Course Service melewati batas waktu', $rid);
+    }
+    fail(503, 'service_unavailable', 'Course Service tidak dapat memproses permintaan', $rid);
+}
+
 // GET /health
 if ($path === '/health' && $method === 'GET') {
     ok(['service' => 'assignment', 'status' => 'healthy'], $rid);
@@ -135,6 +174,7 @@ if ($path === '/api/assignments' && $method === 'GET') {
     if ($courseId === '') {
         fail(400, 'validation_error', 'Parameter course_id wajib diisi', $rid);
     }
+    requireCourse($courseId, $rid);
     $all  = loadAssignments($dataFile);
     $list = array_values(array_filter($all, function ($a) use ($courseId) {
         return $a['course_id'] === $courseId;
@@ -152,7 +192,7 @@ if ($path === '/api/assignments' && $method === 'POST') {
 
     $body = json_decode(file_get_contents('php://input'), true);
     if (!is_array($body)) {
-        fail(400, 'validation_error', 'Body harus berupa JSON yang valid', $rid);
+        fail(400, 'invalid_json', 'Body harus berupa JSON yang valid', $rid);
     }
 
     $courseId    = (isset($body['course_id']) && is_string($body['course_id'])) ? trim($body['course_id']) : '';
@@ -163,6 +203,7 @@ if ($path === '/api/assignments' && $method === 'POST') {
     if ($courseId === '' || $title === '') {
         fail(400, 'validation_error', 'course_id dan title wajib diisi', $rid);
     }
+    requireCourse($courseId, $rid);
 
     // Membuat id baru: asg-001, asg-002, dst.
     $all = loadAssignments($dataFile);
@@ -184,6 +225,17 @@ if ($path === '/api/assignments' && $method === 'POST') {
     file_put_contents($dataFile, json_encode($all, JSON_PRETTY_PRINT));
 
     ok($new, $rid, 201);
+}
+
+// GET /api/assignments/{id} (endpoint tambahan, dipakai Submission Service)
+if ($method === 'GET' && preg_match('#^/api/assignments/([A-Za-z0-9_-]+)$#', $path, $m)) {
+    requireAuth($rid);
+    foreach (loadAssignments($dataFile) as $a) {
+        if ($a['id'] === $m[1]) {
+            ok($a, $rid);
+        }
+    }
+    fail(404, 'assignment_not_found', 'Assignment tidak ditemukan', $rid);
 }
 
 // DELETE /api/assignments/{id}

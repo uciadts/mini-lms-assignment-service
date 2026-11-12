@@ -144,7 +144,8 @@ Jika course belum punya tugas, `assignments` berisi daftar kosong `[]` dengan st
 
 | Status | error.code | Penyebab |
 | --- | --- | --- |
-| 400 | `validation_error` | JSON rusak, atau `course_id` / `title` kosong |
+| 400 | `invalid_json` | Isi body bukan JSON yang valid |
+| 400 | `validation_error` | `course_id` atau `title` kosong |
 | 401 | `unauthorized` | Token tidak ada atau tidak valid |
 | 404 | `course_not_found` | `course_id` tidak ada di Course Service |
 | 415 | `unsupported_media_type` | `Content-Type` bukan `application/json` |
@@ -177,26 +178,47 @@ Jika course belum punya tugas, `assignments` berisi daftar kosong `[]` dengan st
 
 ---
 
-## Endpoint tambahan [USULAN]: Detail satu assignment
+## Endpoint tambahan: Detail satu assignment
 
-Modul hanya mewajibkan tiga operasi, tetapi Submission Service perlu memastikan `assignment_id` ada (Bagian 6 dan 10.2). Endpoint ini mempermudah pemeriksaan itu. Perlu disepakati dengan Kelompok Submission.
+Bukan endpoint wajib di modul. Disediakan agar Submission Service dapat memastikan `assignment_id` ada (Bagian 6). Perlu dikonfirmasi dengan Kelompok 4.
 
-- Metode dan URL: `GET /api/assignments/{id}`
+- Metode dan URL: `GET /api/assignments/{id}`, contoh `GET /api/assignments/asg-001`
 - Autentikasi: Bearer token wajib
+- Request body: -
 - Respons sukses: `200`, `data` berisi satu objek Assignment (bentuk sama seperti Endpoint 2)
-- Respons gagal: `401 unauthorized`, `404 assignment_not_found`
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "asg-001",
+    "course_id": "course-001",
+    "title": "Integrasi Mini LMS",
+    "description": "Bangun satu service dan hubungkan lewat Gateway",
+    "due_date": "2026-11-13"
+  },
+  "meta": { "request_id": "req-001" }
+}
+```
+
+- Respons gagal:
+
+| Status | error.code | Penyebab |
+| --- | --- | --- |
+| 401 | `unauthorized` | Token tidak ada atau tidak valid |
+| 404 | `assignment_not_found` | `id` tidak ditemukan |
 
 ---
 
 ## Dependensi ke service lain
 
-- **Course Service** (Kelompok 3, port 8103): memastikan `course_id` ada sebelum membuat atau menampilkan assignment. Pemeriksaan memakai endpoint wajib `GET /api/courses`, lalu mencari `course_id` di daftar yang dikembalikan. Alamatnya dibaca dari `services.json`, tidak ditulis berulang di kode. Panggilan memakai batas waktu (*timeout*) beberapa detik. Jika Course tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504.
+- **Course Service** (Kelompok 3, port 8103): memastikan `course_id` ada sebelum membuat atau menampilkan assignment. Pemeriksaan memakai `GET /api/courses/{id}` (endpoint tambahan dari Kelompok 3, dibuat khusus untuk Assignment) dengan header `Authorization` dan `X-Request-ID` yang diteruskan dari request client. Respons `200` berarti course ada. Respons `404` dengan kode `course_not_found` diteruskan sebagai `404 course_not_found`. Jika Course tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504. Alamatnya dibaca dari `services.json`, tidak ditulis berulang di kode. Panggilan memakai batas waktu (*timeout*) 3 detik.
 - **Authentication Service** (Kelompok 1, port 8102): memastikan token valid dengan memanggil `POST /api/auth/validate` yang membawa header `Authorization: Bearer <token>`. Respons `200` berisi `data.valid: true` dan `data.user`. Respons `401` berarti token ditolak, dan Assignment meneruskannya sebagai `401 unauthorized`. Jika Authentication tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504.
 
 ## Hal yang masih harus disepakati
 
-1. **Course:** Assignment memakai `GET /api/courses` (endpoint wajib di modul). Yang perlu dikonfirmasi hanya bentuk responsnya, yaitu nama field daftar course dan nama field id (misalnya `data.courses[].id`), supaya pencarian `course_id` benar.
+1. **Course:** SUDAH JELAS dari kontrak Kelompok 3. Assignment memakai `GET /api/courses/{id}`. Jawaban untuk pertanyaan Kelompok 3: jika `course_id` tidak ada, Assignment membalas `404` dengan kode `course_not_found`.
 2. **Authentication:** SUDAH JELAS dari kontrak Kelompok 1. Token diperiksa lewat `POST /api/auth/validate`, dan token diterbitkan pada `data.token` saat login.
-3. **Submission:** apakah endpoint tambahan `GET /api/assignments/{id}` disetujui?
+3. **Submission:** apakah endpoint tambahan `GET /api/assignments/{id}` sesuai kebutuhan mereka untuk memeriksa `assignment_id`?
 4. **Gateway:** nama service pada rute `/api/{service}/{path}` untuk Assignment, dan alamat `assignment` pada `services.json`.
-5. **Semua kelompok:** kode error yang dipakai. Modul hanya memberi contoh `assignment_not_found` dan `not_found`, sisanya pada draf ini adalah usulan.
+5. **Kode error:** sudah dibandingkan dengan kontrak Kelompok 1, 2, dan 3. Kode yang sama: `unauthorized`, `validation_error`, `unsupported_media_type`. Kode untuk service lain yang mati atau lambat berbeda di tiap kelompok, tetapi statusnya sama (503 dan 504), jadi tidak diseragamkan. Kelompok 1 tidak menuliskan kode error pada kontraknya (hanya `username_already_exists`). Kontrak Kelompok 4, 5, dan 7 belum dibandingkan.
