@@ -64,7 +64,6 @@ Koleksi Postman ada di folder `postman/`. Ringkasan dan bukti pengujian ada di `
 
 - Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
 - Integrasi antar laptop belum diuji. Pengujian lewat Gateway dilakukan pada satu laptop memakai salinan Gateway Kelompok 5 yang sudah ditambal (lihat `docs/TESTING.md`).
-- Uji kegagalan lewat Gateway (Assignment dimatikan, lalu dihidupkan kembali) belum diuji.
 - Peran pengguna (`mahasiswa` atau `dosen`) belum dibedakan. Token yang sah dianggap boleh.
 - Data disimpan di berkas JSON, belum memakai basis data, dan belum aman untuk akses bersamaan oleh banyak request.
 - Belum ada pengujian otomatis. Pengujian dilakukan lewat Postman.

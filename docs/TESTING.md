@@ -67,10 +67,18 @@ Catatan:
 - Request `Login (Authentication)` memanggil Authentication langsung (port 8102), tidak lewat Gateway.
 - Tes `Health Assignment` memanggil `{{base_url}}/health`, sehingga yang menjawab adalah Gateway, bukan Assignment.
 
+## Uji kegagalan lewat Gateway: service Assignment tidak berjalan
+
+Tujuannya membuktikan Gateway tetap menjawab dengan rapi saat Assignment mati, dan semuanya pulih saat Assignment dihidupkan kembali (Bagian 10.3 modul). Pengujian memakai salinan Gateway yang sudah ditambal dan environment Postman `Gateway`, dengan Authentication, Course, dan Gateway tetap berjalan.
+
+| No | Langkah | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
+| --- | --- | --- | --- | --- |
+| 17 | Assignment dimatikan (Ctrl + C), lalu `GET :8101/api/assignments?course_id=course-001` dengan token | 503, kode `service_unavailable` | 503, pesan "Service tujuan tidak dapat dihubungi", waktu respons sekitar 2 detik | `13-gateway-assignment-mati-503.png` |
+| 18 | Assignment dihidupkan kembali, lalu request yang sama | 200 | 200, berisi tugas `asg-001` dan `asg-002`, waktu respons 212 ms | `14-gateway-assignment-pulih-200.png` |
+
 ## Belum diuji
 
 - Pemeriksaan `course_id` pada pembuatan tugas (POST) belum tercatat pengujiannya di dokumen ini.
 - Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
 - Integrasi antar laptop belum diuji.
-- Uji kegagalan lewat Gateway (Assignment dimatikan, lalu dihidupkan kembali) belum diuji.
 - Pembedaan peran `mahasiswa` dan `dosen` belum diimplementasikan.
