@@ -1,60 +1,69 @@
-# Rangkuman Pengujian: Assignment Service (Kelompok 6)
+# Assignment Service: Mini LMS Terdistribusi (Kelompok 6)
 
-- Tanggal pengujian: 9 dan 12 November 2026
-- Penyusun: UCI ADITYANTIKASARI
-- Alat uji: Postman. Koleksi ada di `postman/Mini-LMS.postman_collection.json`
-- Lingkungan: Assignment Service (PHP 8.2.12, port 8104), Authentication Service Kelompok 1 (port 8102), dan Course Service Kelompok 3 (port 8103), semuanya pada laptop yang sama. Environment Postman: `Lokal`.
+Service untuk mengelola tugas (assignment) pada proyek Mini LMS Terdistribusi, mata kuliah Sistem Terdistribusi. Setiap tugas terkait dengan satu `course_id`.
 
-## Cakupan
+## Identitas anggota dan pembagian kontribusi
 
-Pengujian mencakup kasus sukses, input salah (400), sumber daya tidak ditemukan (404), tanpa token (401), dan uji kegagalan saat service lain tidak berjalan (503), sesuai Bagian 12.4 modul.
+| Nama | NIM | Kontribusi |
+| --- | --- | --- |
+| UCI ADITYANTIKASARI | 240209502001 | Implementasi service (tiga endpoint, /health, pemeriksaan token), kontrak API, koleksi Postman, repositori GitHub. Peran demo: Operator |
+| NURHANDAYANI | 240209502024 | Penanggung jawab koordinasi antarkelompok. Peran demo: Pencatat |
+| MUHAMMAD FAUZAN | 240209502034 | Penanggung jawab dokumentasi pengujian (TESTING.md dan bukti). Peran demo: Penguji |
+| ANDI NURRIZQAH HAMDANA | 240209501084 | Penanggung jawab diagram alur. Peran demo: Penjelas alur |
 
-## Hasil pengujian fungsional
+Tambahkan atau hapus baris sesuai jumlah anggota.
 
-| No | Skenario | Request | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Health check | `GET /health` | 200, status `healthy` | 200, `data.service` = `assignment`, `data.status` = `healthy` | `01-health-assignment-200.png` |
-| 2 | Login ke Authentication | `POST :8102/api/auth/login` | 200, token diterbitkan | 200, tes Postman lulus | `05-collection-runner-15-lulus.png` |
-| 3 | Daftar tugas dengan token | `GET /api/assignments?course_id=course-001` | 200, berisi daftar tugas | 200, berisi tugas `asg-001` "Integrasi Mini LMS" | `04-daftar-assignment-200-pulih.png` |
-| 4 | Daftar tugas tanpa token | `GET /api/assignments?course_id=course-001` tanpa Authorization | 401 | 401, kedua tes Postman lulus | `05-collection-runner-15-lulus.png` |
-| 5 | Daftar tugas tanpa `course_id` | `GET /api/assignments` dengan token | 400, kode `validation_error` | 400, tes Postman lulus | `05-collection-runner-15-lulus.png` |
-| 6 | Membuat tugas | `POST /api/assignments` dengan token | 201, berisi `id` baru | Lulus pada Collection Runner (ringkasan 15 dari 15 tes lulus) | `05-collection-runner-15-lulus.png` (ringkasan) |
-| 7 | Menghapus tugas | `DELETE /api/assignments/{id}` dengan token | 200, `deleted` bernilai `true` | Lulus pada Collection Runner (ringkasan 15 dari 15 tes lulus) | `05-collection-runner-15-lulus.png` (ringkasan) |
-| 8 | Menghapus tugas yang tidak ada | `DELETE /api/assignments/{id}` untuk id yang sudah terhapus | 404, kode `assignment_not_found` | Lulus pada Collection Runner (ringkasan 15 dari 15 tes lulus) | `05-collection-runner-15-lulus.png` (ringkasan) |
+## Informasi service
 
-## Hasil Collection Runner
+| Item | Nilai |
+| --- | --- |
+| Nama service | Assignment Service |
+| Port | 8104 |
+| Alamat | http://127.0.0.1:8104 |
+| Bahasa dan runtime | PHP 8.2 (dari XAMPP) |
+| Penyimpanan data | Berkas JSON di `data/assignments.json` (dibuat otomatis) |
 
-Dijalankan pada 9 November 2026 pukul 21.02 dengan environment `Lokal`, 1 iterasi. Hasil: 15 tes, 15 lulus, 0 gagal, 0 error, durasi sekitar 2 detik.
+## Cara menjalankan
 
-Catatan: Runner ini dijalankan sebelum pemeriksaan `course_id` ke Course Service dipasang di kode, sehingga hasilnya belum mencakup pemeriksaan tersebut.
+1. Pastikan PHP terpasang. Cek dengan `php -v`.
+2. Buka terminal di folder proyek ini.
+3. Jalankan:
 
-Dijalankan ulang pada 12 November 2026, setelah pemeriksaan `course_id` dipasang, dengan Authentication Service, Course Service, dan Assignment Service berjalan bersamaan dan environment `Lokal`. Hasil: 17 tes, 17 lulus, 0 gagal. Bukti: `10-collection-runner-setelah-course.png`.
+```
+php -S 127.0.0.1:8104 index.php
+```
 
-## Uji kegagalan: service Authentication tidak berjalan
+4. Uji dengan `GET http://127.0.0.1:8104/health`. Hasil yang benar adalah status 200 dan `"status": "healthy"`.
+5. Hentikan service dengan `Ctrl + C`.
 
-Tujuannya membuktikan Assignment Service tetap menjawab dengan rapi saat service yang dipanggilnya mati, dan pulih sendiri saat service itu hidup kembali (Bagian 10.3 modul).
+Alamat service lain dibaca dari `services.json`. Berkas ini tidak berisi kata sandi atau token.
 
-| No | Langkah | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
-| --- | --- | --- | --- | --- |
-| 9 | Health Assignment saat Authentication dimatikan (pukul 20.22) | 200, Assignment tetap sehat | 200, `status` = `healthy` | `01-health-assignment-200.png` |
-| 10 | Daftar tugas dengan token saat Authentication mati (pukul 20.24) | 503, kode `service_unavailable` | 503, pesan "Authentication Service tidak dapat dihubungi" | `02-auth-mati-503.png` |
-| 11 | Authentication dihidupkan kembali, cek `GET :8102/health` (pukul 20.26) | 200 | 200, `status` = `healthy` | `03-auth-hidup-kembali-200.png` |
-| 12 | Daftar tugas dengan token setelah Authentication hidup (pukul 20.28) | 200 | 200, berisi tugas `asg-001` | `04-daftar-assignment-200-pulih.png` |
+## Endpoint
 
-## Pemeriksaan course_id ke Course Service
+Rincian request, response, dan status HTTP ada di [API_CONTRACT.md](API_CONTRACT.md).
 
-Assignment memeriksa `course_id` lewat `GET /api/courses/{id}` di Course Service Kelompok 3 sebelum membuat atau menampilkan tugas. Course Service dijalankan pada laptop yang sama dengan course `course-001`.
+| Metode | Path | Token |
+| --- | --- | --- |
+| GET | `/health` | tidak |
+| GET | `/api/assignments?course_id=...` | wajib |
+| POST | `/api/assignments` | wajib |
+| DELETE | `/api/assignments/{id}` | wajib |
 
-| No | Langkah | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
-| --- | --- | --- | --- | --- |
-| 13 | Daftar tugas dengan `course_id=course-001` (course ada) | 200 | 200, sesuai harapan | `06-course-ada-200.png` |
-| 14 | Daftar tugas dengan `course_id=course-999` (course tidak ada) | 404, kode `course_not_found` | 404, sesuai harapan | `07-course-tidak-ada-404.png` |
-| 15 | Course Service dimatikan, lalu daftar tugas dengan `course_id=course-001` | 503, kode `service_unavailable` | 503, sesuai harapan | `08-course-mati-503.png` |
-| 16 | Course Service dihidupkan kembali, lalu daftar tugas dengan `course_id=course-001` | 200 | 200, sesuai harapan | `09-course-pulih-200.png` |
+## Hubungan dengan service lain
 
-## Belum diuji
+- **Authentication Service** (Kelompok 1, port 8102): token diperiksa lewat `POST /api/auth/validate`.
+- **Course Service** (Kelompok 3, port 8103): dipakai untuk memastikan `course_id` ada (lihat keterbatasan di bawah).
+- **Monitoring Service** (Kelompok 7, port 8107): memanggil `GET /health` ke service ini.
+- **Submission Service** (Kelompok 4, port 8105): memeriksa `assignment_id` ke service ini.
 
-- Pemeriksaan `course_id` pada pembuatan tugas (POST) belum tercatat pengujiannya di dokumen ini.
-- Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
-- Integrasi melalui API Gateway dan antar laptop belum diuji.
-- Pembedaan peran `mahasiswa` dan `dosen` belum diimplementasikan.
+## Pengujian
+
+Koleksi Postman ada di folder `postman/`. Ringkasan dan bukti pengujian ada di `docs/TESTING.md` dan `docs/bukti/`.
+
+## Keterbatasan implementasi yang diketahui
+
+- Pemeriksaan `course_id` ke Course Service belum diimplementasikan. Saat ini `course_id` diterima tanpa diperiksa keberadaannya.
+- Jalur token asli (token valid) belum diuji terhadap service Authentication yang berjalan. Yang sudah diuji: tanpa token (401) dan Authentication tidak terjangkau (503).
+- Peran pengguna (`mahasiswa` atau `dosen`) belum dibedakan. Token yang sah dianggap boleh.
+- Data disimpan di berkas JSON, belum memakai basis data, dan belum aman untuk akses bersamaan oleh banyak request.
+- Belum ada pengujian otomatis. Pengujian dilakukan lewat Postman.

@@ -28,6 +28,8 @@ Dijalankan pada 9 November 2026 pukul 21.02 dengan environment `Lokal`, 1 iteras
 
 Catatan: Runner ini dijalankan sebelum pemeriksaan `course_id` ke Course Service dipasang di kode, sehingga hasilnya belum mencakup pemeriksaan tersebut.
 
+Dijalankan ulang pada 12 November 2026, setelah pemeriksaan `course_id` dipasang, dengan Authentication Service, Course Service, dan Assignment Service berjalan bersamaan dan environment `Lokal`. Hasil: 17 tes, 17 lulus, 0 gagal. Bukti: `10-collection-runner-setelah-course.png`.
+
 ## Uji kegagalan: service Authentication tidak berjalan
 
 Tujuannya membuktikan Assignment Service tetap menjawab dengan rapi saat service yang dipanggilnya mati, dan pulih sendiri saat service itu hidup kembali (Bagian 10.3 modul).
@@ -53,7 +55,6 @@ Assignment memeriksa `course_id` lewat `GET /api/courses/{id}` di Course Service
 ## Belum diuji
 
 - Pemeriksaan `course_id` pada pembuatan tugas (POST) belum tercatat pengujiannya di dokumen ini.
-- Endpoint tambahan `GET /api/assignments/{id}` belum tercatat pengujiannya di dokumen ini.
 - Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
 - Integrasi melalui API Gateway dan antar laptop belum diuji.
 - Pembedaan peran `mahasiswa` dan `dosen` belum diimplementasikan.
