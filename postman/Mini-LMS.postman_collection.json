@@ -81,6 +81,17 @@
     },
     {
       "name": "Daftar assignment tanpa token (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Tanpa token ditolak (401)\", function () {\r\n  pm.response.to.have.status(401);\r\n});\r\npm.test(\"Format error sesuai kontrak\", function () {\r\n  const json = pm.response.json();\r\n  pm.expect(json.success).to.eql(false);\r\n  pm.expect(json.error).to.have.property(\"code\");\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -142,6 +153,131 @@
             {
               "key": "course_id",
               "value": "course-001"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Detail assignment berhasil (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Detail berhasil (200)\", function () {\r\n  pm.response.to.have.status(200);\r\n});\r\npm.test(\"Berisi id asg-001\", function () {\r\n  pm.expect(pm.response.json().data.id).to.eql(\"asg-001\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments/asg-001",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments",
+            "asg-001"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Detail assignment tidak ditemukan (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Tidak ditemukan (404)\", function () {\r\n  pm.response.to.have.status(404);\r\n});\r\npm.test(\"Kode error assignment_not_found\", function () {\r\n  const json = pm.response.json();\r\n  pm.expect(json.success).to.eql(false);\r\n  pm.expect(json.error.code).to.eql(\"assignment_not_found\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments/asg-999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments",
+            "asg-999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Daftar assignment course tidak ada (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Course tidak ada (404)\", function () {\r\n  pm.response.to.have.status(404);\r\n});\r\npm.test(\"Kode error course_not_found\", function () {\r\n  const json = pm.response.json();\r\n  pm.expect(json.success).to.eql(false);\r\n  pm.expect(json.error.code).to.eql(\"course_not_found\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/assignments?course_id=course-999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "assignments"
+          ],
+          "query": [
+            {
+              "key": "course_id",
+              "value": "course-999"
             }
           ]
         }
