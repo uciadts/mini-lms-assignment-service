@@ -52,6 +52,7 @@ Rincian request, response, dan status HTTP ada di [API_CONTRACT.md](API_CONTRACT
 
 - **Authentication Service** (Kelompok 1, port 8102): token diperiksa lewat `POST /api/auth/validate`.
 - **Course Service** (Kelompok 3, port 8103): memastikan `course_id` ada lewat `GET /api/courses/{id}` sebelum tugas dibuat atau ditampilkan.
+- **API Gateway** (Kelompok 5, port 8101): meneruskan request client ke service ini. Gateway versi GitHub (9 November 2026) menjawab 404 `service_not_found` untuk `/api/assignments`, sehingga pengujian lewat Gateway memakai salinan yang sudah ditambal (lihat `docs/TESTING.md`).
 - **Monitoring Service** (Kelompok 7, port 8107): memanggil `GET /health` ke service ini.
 - **Submission Service** (Kelompok 4, port 8105): memeriksa `assignment_id` ke service ini.
 
@@ -62,7 +63,8 @@ Koleksi Postman ada di folder `postman/`. Ringkasan dan bukti pengujian ada di `
 ## Keterbatasan implementasi yang diketahui
 
 - Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
-- Integrasi melalui API Gateway dan antar laptop belum diuji.
+- Integrasi antar laptop belum diuji. Pengujian lewat Gateway dilakukan pada satu laptop memakai salinan Gateway Kelompok 5 yang sudah ditambal (lihat `docs/TESTING.md`).
+- Uji kegagalan lewat Gateway (Assignment dimatikan, lalu dihidupkan kembali) belum diuji.
 - Peran pengguna (`mahasiswa` atau `dosen`) belum dibedakan. Token yang sah dianggap boleh.
 - Data disimpan di berkas JSON, belum memakai basis data, dan belum aman untuk akses bersamaan oleh banyak request.
 - Belum ada pengujian otomatis. Pengujian dilakukan lewat Postman.

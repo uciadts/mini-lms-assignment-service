@@ -52,9 +52,25 @@ Assignment memeriksa `course_id` lewat `GET /api/courses/{id}` di Course Service
 | 15 | Course Service dimatikan, lalu daftar tugas dengan `course_id=course-001` | 503, kode `service_unavailable` | 503, sesuai harapan | `08-course-mati-503.png` |
 | 16 | Course Service dihidupkan kembali, lalu daftar tugas dengan `course_id=course-001` | 200 | 200, sesuai harapan | `09-course-pulih-200.png` |
 
+## Pengujian melalui API Gateway (Kelompok 5)
+
+Tujuannya membuktikan Assignment dapat diakses lewat Gateway (port 8101), sesuai Bagian 10 dan 12 modul. Semua service berjalan pada laptop yang sama.
+
+**Temuan awal.** Dengan Gateway Kelompok 5 versi GitHub (commit 9 November 2026), `GET /api/assignments?course_id=course-001` dengan token dijawab 404 dengan kode `service_not_found` ("Service 'assignments' tidak terdaftar"). Penyebabnya ada dua: Gateway mencari nama `assignments` di `services.json` padahal kuncinya `assignment`, dan alamat tujuan disusun ulang menjadi `/api/assignment/...` padahal endpoint Assignment adalah `/api/assignments`. Bukti: `12-gateway-asli-404.png`.
+
+**Penanganan.** Dua perubahan kecil pada `index.php` Gateway: (1) tabel alias yang menerjemahkan `assignments` menjadi `assignment` (juga `courses`, `submissions`, `notifications`), dan (2) path asli dari client diteruskan apa adanya ke service tujuan. Perubahan ini disampaikan kepada Kelompok 5. Pengujian di bawah memakai salinan Gateway yang sudah memuat perubahan tersebut.
+
+**Hasil.** Dijalankan pada 12 November 2026 pukul 12.53 dengan environment Postman `Gateway` (`base_url` = `http://127.0.0.1:8101`), dengan Authentication, Course, Assignment, dan Gateway berjalan bersamaan. Hasil: 21 tes, 21 lulus, 0 gagal, 0 error. Bukti: `11-collection-runner-lewat-gateway.png`.
+
+Catatan:
+
+- Request `Login (Authentication)` memanggil Authentication langsung (port 8102), tidak lewat Gateway.
+- Tes `Health Assignment` memanggil `{{base_url}}/health`, sehingga yang menjawab adalah Gateway, bukan Assignment.
+
 ## Belum diuji
 
 - Pemeriksaan `course_id` pada pembuatan tugas (POST) belum tercatat pengujiannya di dokumen ini.
 - Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
-- Integrasi melalui API Gateway dan antar laptop belum diuji.
+- Integrasi antar laptop belum diuji.
+- Uji kegagalan lewat Gateway (Assignment dimatikan, lalu dihidupkan kembali) belum diuji.
 - Pembedaan peran `mahasiswa` dan `dosen` belum diimplementasikan.
