@@ -90,6 +90,7 @@ Urutan request pada koleksi menyebabkan satu tugas hasil `Buat assignment berhas
 | --- | --- | --- | --- | --- |
 | 19 | `GET :8101/api/assignments?course_id=course-002` dengan token (lewat Gateway) | 200, berisi tugas milik `course-002` | 200, berisi `asg-002` "Tugas Basis Data 1", dua tes Postman lulus | `17-course-002-ada-200.png` |
 | 20 | `POST :8101/api/assignments` dengan `course_id` = `course-002` dan token (lewat Gateway) | 201, berisi `id` baru | 201, `id` = `asg-003`, dua tes Postman lulus | `18-buat-course-002-201.png` |
+| 21 | `POST :8101/api/submissions` (Submission Service Kelompok 4, lewat Gateway) dengan `assignment_id` = `asg-001` dan token. Submission memeriksa tugas itu ke Assignment lewat `GET /api/assignments/{id}` | 201, pengumpulan diterima | 201 | `19-submission-ke-assignment-201.png` |
 
 ## Belum diuji
 
