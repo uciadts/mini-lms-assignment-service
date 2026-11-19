@@ -1,12 +1,13 @@
 # API Contract: Assignment Service (Kelompok 6)
 
-> Status: DRAFT. Bagian bertanda **[USULAN]** belum disepakati dengan kelompok lain.
+> Status: versi final Kelompok 6, diperbarui 20 November 2026. Isinya sesuai dengan kode `index.php` dan sudah diuji lewat API Gateway resmi Kelompok 5. Bagian bertanda **[USULAN]** adalah tambahan Kelompok 6 di luar contoh pada modul.
 
 ## Informasi umum
 
 - Port: 8104
 - URL dasar: http://127.0.0.1:8104
 - Format data: JSON
+- Data awal (dibuat otomatis jika `data/assignments.json` belum ada): `asg-001` untuk `course-001` dan `asg-002` untuk `course-002`
 - Header yang dipakai:
   - `Content-Type: application/json` untuk request dan response JSON
   - `Authorization: Bearer <token>` untuk endpoint terproteksi
@@ -104,8 +105,8 @@ Jika course belum punya tugas, `assignments` berisi daftar kosong `[]` dengan st
 | 400 | `validation_error` | Query `course_id` tidak diisi **[USULAN]** |
 | 401 | `unauthorized` | Token tidak ada atau tidak valid |
 | 404 | `course_not_found` | `course_id` tidak ada di Course Service |
-| 503 | `service_unavailable` | Course Service tidak dapat dihubungi |
-| 504 | `gateway_timeout` | Course Service melewati batas waktu |
+| 503 | `service_unavailable` | Authentication Service atau Course Service tidak dapat dihubungi |
+| 504 | `gateway_timeout` | Authentication Service atau Course Service melewati batas waktu |
 
 ---
 
@@ -149,8 +150,8 @@ Jika course belum punya tugas, `assignments` berisi daftar kosong `[]` dengan st
 | 401 | `unauthorized` | Token tidak ada atau tidak valid |
 | 404 | `course_not_found` | `course_id` tidak ada di Course Service |
 | 415 | `unsupported_media_type` | `Content-Type` bukan `application/json` |
-| 503 | `service_unavailable` | Course Service tidak dapat dihubungi |
-| 504 | `gateway_timeout` | Course Service melewati batas waktu |
+| 503 | `service_unavailable` | Authentication Service atau Course Service tidak dapat dihubungi |
+| 504 | `gateway_timeout` | Authentication Service atau Course Service melewati batas waktu |
 
 ---
 
@@ -175,6 +176,8 @@ Jika course belum punya tugas, `assignments` berisi daftar kosong `[]` dengan st
 | --- | --- | --- |
 | 401 | `unauthorized` | Token tidak ada atau tidak valid |
 | 404 | `assignment_not_found` | `id` tidak ditemukan |
+| 503 | `service_unavailable` | Authentication Service tidak dapat dihubungi |
+| 504 | `gateway_timeout` | Authentication Service melewati batas waktu |
 
 ---
 
@@ -207,6 +210,8 @@ Bukan endpoint wajib di modul. Disediakan agar Submission Service dapat memastik
 | --- | --- | --- |
 | 401 | `unauthorized` | Token tidak ada atau tidak valid |
 | 404 | `assignment_not_found` | `id` tidak ditemukan |
+| 503 | `service_unavailable` | Authentication Service tidak dapat dihubungi |
+| 504 | `gateway_timeout` | Authentication Service melewati batas waktu |
 
 ---
 
@@ -215,10 +220,10 @@ Bukan endpoint wajib di modul. Disediakan agar Submission Service dapat memastik
 - **Course Service** (Kelompok 3, port 8103): memastikan `course_id` ada sebelum membuat atau menampilkan assignment. Pemeriksaan memakai `GET /api/courses/{id}` (endpoint tambahan dari Kelompok 3, dibuat khusus untuk Assignment) dengan header `Authorization` dan `X-Request-ID` yang diteruskan dari request client. Respons `200` berarti course ada. Respons `404` dengan kode `course_not_found` diteruskan sebagai `404 course_not_found`. Jika Course tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504. Alamatnya dibaca dari `services.json`, tidak ditulis berulang di kode. Panggilan memakai batas waktu (*timeout*) 3 detik.
 - **Authentication Service** (Kelompok 1, port 8102): memastikan token valid dengan memanggil `POST /api/auth/validate` yang membawa header `Authorization: Bearer <token>`. Respons `200` berisi `data.valid: true` dan `data.user`. Respons `401` berarti token ditolak, dan Assignment meneruskannya sebagai `401 unauthorized`. Jika Authentication tidak dapat dihubungi, kembalikan 503. Jika melewati batas waktu, kembalikan 504.
 
-## Hal yang masih harus disepakati
+## Catatan kesepakatan dengan kelompok lain
 
-1. **Course:** SUDAH JELAS dari kontrak Kelompok 3. Assignment memakai `GET /api/courses/{id}`. Jawaban untuk pertanyaan Kelompok 3: jika `course_id` tidak ada, Assignment membalas `404` dengan kode `course_not_found`.
-2. **Authentication:** SUDAH JELAS dari kontrak Kelompok 1. Token diperiksa lewat `POST /api/auth/validate`, dan token diterbitkan pada `data.token` saat login.
-3. **Submission:** apakah endpoint tambahan `GET /api/assignments/{id}` sesuai kebutuhan mereka untuk memeriksa `assignment_id`?
-4. **Gateway:** nama service pada rute `/api/{service}/{path}` untuk Assignment, dan alamat `assignment` pada `services.json`.
+1. **Course:** sesuai kontrak Kelompok 3. Assignment memakai `GET /api/courses/{id}`. Jika `course_id` tidak ada, Assignment membalas `404` dengan kode `course_not_found`.
+2. **Authentication:** sesuai kontrak Kelompok 1. Token diperiksa lewat `POST /api/auth/validate`, dan token diterbitkan pada `data.token` saat login.
+3. **Submission:** kode Submission Service (Kelompok 4) memanggil `GET /api/assignments/{id}` dengan header `Authorization` dan `X-Request-ID`, dan membaca `404 assignment_not_found` untuk id yang tidak ada. Ini sesuai dengan endpoint tambahan di atas.
+4. **Gateway:** pada rute `/api/{service}/{path}`, nama `assignments` diterjemahkan menjadi `assignment` pada `services.json`, dan path asli diteruskan apa adanya ke Assignment. Perbaikan ini diterapkan Kelompok 5 pada commit `299d6fd` (12 November 2026), dan pengujian lewat Gateway resmi lulus (lihat `docs/TESTING.md`).
 5. **Kode error:** sudah dibandingkan dengan kontrak Kelompok 1, 2, dan 3. Kode yang sama: `unauthorized`, `validation_error`, `unsupported_media_type`. Kode untuk service lain yang mati atau lambat berbeda di tiap kelompok, tetapi statusnya sama (503 dan 504), jadi tidak diseragamkan. Kelompok 1 tidak menuliskan kode error pada kontraknya (hanya `username_already_exists`). Kontrak Kelompok 4, 5, dan 7 belum dibandingkan.

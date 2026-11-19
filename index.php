@@ -48,6 +48,13 @@ function loadAssignments($file) {
                 'description' => 'Bangun satu service dan hubungkan lewat Gateway',
                 'due_date'    => '2026-11-13',
             ],
+            [
+                'id'          => 'asg-002',
+                'course_id'   => 'course-002',
+                'title'       => 'Tugas Basis Data 1',
+                'description' => 'Contoh tugas untuk course kedua',
+                'due_date'    => '2026-12-04',
+            ],
         ];
         file_put_contents($file, json_encode($seed, JSON_PRETTY_PRINT));
     }
