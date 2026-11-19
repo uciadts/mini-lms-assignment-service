@@ -1,8 +1,8 @@
 # Rangkuman Pengujian: Assignment Service (Kelompok 6)
 
-- Tanggal pengujian: 9 dan 12 November 2026
+- Tanggal pengujian: 9, 12, dan 20 November 2026
 - Penyusun: UCI ADITYANTIKASARI
-- Alat uji: Postman. Koleksi ada di `postman/Mini-LMS.postman_collection.json`
+- Alat uji: Postman. Koleksi ada di `postman/Mini-LMS.postman_collection.json`, environment di `postman/Gateway.postman_environment.json` dan `postman/Lokal.postman_environment.json`
 - Lingkungan: Assignment Service (PHP 8.2.12, port 8104), Authentication Service Kelompok 1 (port 8102), dan Course Service Kelompok 3 (port 8103), semuanya pada laptop yang sama. Environment Postman: `Lokal`.
 
 ## Cakupan
@@ -78,9 +78,22 @@ Tujuannya membuktikan Gateway tetap menjawab dengan rapi saat Assignment mati, d
 | 17 | Assignment dimatikan (Ctrl + C), lalu `GET :8101/api/assignments?course_id=course-001` dengan token | 503, kode `service_unavailable` | 503, pesan "Service tujuan tidak dapat dihubungi", waktu respons sekitar 2 detik | `13-gateway-assignment-mati-503.png` |
 | 18 | Assignment dihidupkan kembali, lalu request yang sama | 200 | 200, berisi tugas `asg-001` dan `asg-002`, waktu respons 212 ms | `14-gateway-assignment-pulih-200.png` |
 
+## Pembaruan 20 November 2026: koleksi 14 request dan dua course
+
+Koleksi bertambah dari 12 menjadi 14 request, yaitu `Daftar assignment course-002 (200)` dan `Buat assignment course-002 (201)`. Data awal service sekarang berisi dua tugas untuk dua course: `asg-001` (`course-001`) dan `asg-002` (`course-002`). Course Service Kelompok 3 menyediakan kedua course tersebut.
+
+**Collection Runner.** Dijalankan pada 20 November 2026 pukul 02.29 dengan environment `Gateway` (`base_url` = `http://127.0.0.1:8101`), Authentication, Course, Assignment, dan Gateway berjalan bersamaan pada satu laptop, 1 iterasi. Request `Daftar assignment, Authentication mati (503)` tidak diikutkan karena merupakan uji manual (service dimatikan lebih dulu). Hasil: 25 tes, 25 lulus, 0 gagal, 0 error, durasi sekitar 3,55 detik, rata-rata waktu respons 41 ms. Bukti: `16-collection-runner-gateway-14-request.png`.
+
+Urutan request pada koleksi menyebabkan satu tugas hasil `Buat assignment berhasil (201)` tersisa di data setelah Runner selesai, karena `Hapus assignment berhasil (200)` menghapus tugas yang dibuat paling akhir. Untuk mengembalikan data ke keadaan awal, hapus `data/assignments.json`, lalu service membuatnya lagi dengan data awal.
+
+| No | Langkah | Hasil yang diharapkan | Hasil sebenarnya | Bukti |
+| --- | --- | --- | --- | --- |
+| 19 | `GET :8101/api/assignments?course_id=course-002` dengan token (lewat Gateway) | 200, berisi tugas milik `course-002` | 200, berisi `asg-002` "Tugas Basis Data 1", dua tes Postman lulus | `17-course-002-ada-200.png` |
+| 20 | `POST :8101/api/assignments` dengan `course_id` = `course-002` dan token (lewat Gateway) | 201, berisi `id` baru | 201, `id` = `asg-003`, dua tes Postman lulus | `18-buat-course-002-201.png` |
+
 ## Belum diuji
 
-- Pemeriksaan `course_id` pada pembuatan tugas (POST) belum tercatat pengujiannya di dokumen ini.
+- Pembuatan tugas (POST) dengan `course_id` yang tidak ada (404, kode `course_not_found`) belum diuji lewat Postman. Pengujian untuk daftar tugas (GET) sudah ada pada baris 14.
 - Kasus Authentication atau Course melewati batas waktu (504) belum diuji.
 - Integrasi antar laptop belum diuji.
 - Pembedaan peran `mahasiswa` dan `dosen` belum diimplementasikan.
