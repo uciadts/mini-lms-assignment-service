@@ -66,7 +66,7 @@ Pengujian diulang pada 12 November 2026 dengan Gateway resmi Kelompok 5 (commit 
 
 Catatan:
 
-- Request `Login (Authentication)` memanggil Authentication langsung (port 8102), tidak lewat Gateway.
+- Pada pengujian 12 November dan Collection Runner 20 November pukul 02.29, request `Login (Authentication)` memanggil Authentication langsung (port 8102). Pada 20 November 2026 request itu diubah menjadi `{{base_url}}/api/auth/login`, sehingga lewat Gateway. Diuji manual di Postman dengan environment `Gateway`: hasil 200. Collection Runner belum diulang dengan perubahan ini.
 - Tes `Health Assignment` memanggil `{{base_url}}/health`, sehingga yang menjawab adalah Gateway, bukan Assignment.
 
 ## Uji kegagalan lewat Gateway: service Assignment tidak berjalan

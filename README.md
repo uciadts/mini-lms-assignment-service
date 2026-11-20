@@ -52,11 +52,11 @@ Autentikasi dikerjakan oleh Authentication Service (Kelompok 1, port 8102). Akun
 
 Cara masuk:
 
-1. Kirim `POST http://127.0.0.1:8102/api/auth/login` dengan body JSON `{"username": "dosen_distribusi", "password": "password123"}`.
+1. Kirim `POST http://127.0.0.1:8101/api/auth/login` (lewat API Gateway, yang meneruskannya ke Authentication Service di port 8102) dengan body JSON `{"username": "dosen_distribusi", "password": "password123"}`. Alamat langsung `http://127.0.0.1:8102/api/auth/login` juga dapat dipakai.
 2. Ambil nilai `data.token` dari respons. Token berlaku 24 jam.
 3. Sertakan token pada setiap request ke endpoint Assignment: header `Authorization: Bearer <token>`.
 
-Di Postman, request `Login (Authentication)` menyimpan token otomatis ke variabel `token`, sehingga request lain langsung memakainya.
+Di Postman, request `Login (Authentication)` dikirim ke `{{base_url}}` (Gateway) dan menyimpan token otomatis ke variabel `token`, sehingga request lain langsung memakainya.
 
 ## Endpoint
 
@@ -99,7 +99,7 @@ Berkas di folder `postman/`:
 | `Gateway.postman_environment.json` | Environment: `base_url` = Gateway (8101) |
 | `Lokal.postman_environment.json` | Environment: `base_url` = Assignment langsung (8104) |
 
-Cara memakai: impor semua berkas ke Postman, pilih environment `Gateway` atau `Lokal`, jalankan `Login (Authentication)` lebih dulu, lalu jalankan request lainnya berurutan atau lewat Collection Runner. Request terakhir (Authentication mati, 503) dijalankan manual setelah Authentication dimatikan, bukan lewat Runner.
+Cara memakai: impor semua berkas ke Postman, pilih environment `Gateway` (environment `Lokal` mengarah langsung ke Assignment dan tidak melayani Login, kecuali alamat Login diubah ke `http://127.0.0.1:8102/api/auth/login`), jalankan `Login (Authentication)` lebih dulu, lalu jalankan request lainnya berurutan atau lewat Collection Runner. Request terakhir (Authentication mati, 503) dijalankan manual setelah Authentication dimatikan, bukan lewat Runner.
 
 Ringkasan dan bukti pengujian ada di `docs/TESTING.md` dan `docs/bukti/`.
 
